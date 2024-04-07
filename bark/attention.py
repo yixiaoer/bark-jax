@@ -8,7 +8,9 @@ import jax.random as jrand
 import torch
 from transformers import BarkModel
 from transformers.models.bark.modeling_bark import BarkSelfAttention
+
 from bark.array_conversion import jax2pt, pt2jax
+from bark.dropout import forward_dropout
 
 # TODO: eliminate this
 d_model = 1024
@@ -41,13 +43,14 @@ def forward_attention(params: AttentionParams, seq: Array, qk_mask: Array) -> Ar
     qk = jnp.einsum('bhsk,bhdk->bhsd', q, k) / math.sqrt(d_k)
 
     qk = jax.nn.softmax(qk, where=qk_mask, initial=0.)
+    qk = forward_dropout(qk)
     qkv = jnp.einsum('bhsd,bhdv->bhsv', qk, v)
     out = jnp.einsum('bhsv,hvm->bsm', qkv, o_proj_jax)
+    out = forward_dropout(out)
     return out
 
 def test_forward_attention(model: BarkModel) -> None:
-    batch_size, seq_len = 1, 10
-
+    batch_size, seq_len = 4, 10
     self_attn_pt = model.semantic.layers[0].attn
 
     key = jrand.key(42)
