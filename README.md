@@ -14,7 +14,7 @@ It is supported by Cloud TPUs from Google's [TPU Research Cloud (TRC)](https://s
 
 ## Install
 
-This project requires Python 3.12, JAX 0.4.25.
+This project requires Python 3.12, JAX 0.4.26.
 
 Create venv:
 
